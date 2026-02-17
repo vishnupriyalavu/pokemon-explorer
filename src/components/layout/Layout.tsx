@@ -10,9 +10,9 @@ function Layout({ children }: Props) {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-1 py-10 bg-gray-100 flex items-center justify-center">
-  {children}
-</main>
+      <main className="flex-1 bg-gray-100">
+        {children}
+      </main>
       <Footer />
     </div>
   )

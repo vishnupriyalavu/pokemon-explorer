@@ -1,46 +1,27 @@
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { fetchPokemonDetails } from "../api/pokemonApi";
-import { Badge } from "../components/ui/badge";
+import { useParams } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { fetchPokemonDetails } from "@/api/pokemonApi"
+import PokemonDetailsCard from "@/components/pokemon/PokemonDetailCard"
+
 
 function PokemonDetail() {
-  const { name } = useParams<{ name: string }>();
+  const { name } = useParams<{ name: string }>()
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["pokemon", name],
     queryFn: () => fetchPokemonDetails(name!),
-  });
+    enabled: !!name,
+  })
 
-  return (
-    <div className="p-10 space-y-6">
-      <h1 className="text-4xl font-bold capitalize">
-        {data?.name}
-      </h1>
+  if (isLoading) {
+    return <p className="text-center py-20">Loading...</p>
+  }
 
-      <img src={data?.sprites.front_default} />
+  if (!data) {
+    return <p className="text-center py-20 text-red-500">Error</p>
+  }
 
-      <div className="flex gap-2">
-        {data?.types.map((t) => (
-          <Badge key={t.type.name}>
-            {t.type.name}
-          </Badge>
-        ))}
-      </div>
-
-      <p>Height: {data?.height}</p>
-      <p>Weight: {data?.weight}</p>
-
-      <h2 className="text-xl font-bold">
-        Abilities
-      </h2>
-
-      {data?.abilities.map((a) => (
-        <p key={a.ability.name}>
-          {a.ability.name}
-        </p>
-      ))}
-    </div>
-  );
+  return <PokemonDetailsCard pokemon={data} />
 }
 
-export default PokemonDetail;
+export default PokemonDetail

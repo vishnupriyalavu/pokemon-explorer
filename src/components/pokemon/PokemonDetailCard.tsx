@@ -1,70 +1,59 @@
-import { useParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
-import { fetchPokemonDetails } from "@/api/pokemonApi"
-import PokemonTypes from "@/components/pokemon/PokemonTypes"
+import type { PokemonDetails } from "@/api/pokemonApi"
+import PokemonTypes from "./PokemonTypes"
 
-function PokemonDetail() {
-  const { name } = useParams<{ name: string }>()
+interface Props {
+  pokemon: PokemonDetails
+}
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["pokemon", name],
-    queryFn: () => fetchPokemonDetails(name!),
-    enabled: !!name,
-  })
-
-  if (isLoading) {
-    return <p className="text-center text-lg">Loading...</p>
-  }
-
-  if (!data) {
-    return <p className="text-center text-red-500">Error</p>
-  }
-
+function PokemonDetailsCard({ pokemon }: Props) {
   return (
-    <div className="flex justify-center py-10">
-      <div className="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-2xl space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-300 via-emerald-400 to-teal-300 flex items-center justify-center p-6">
 
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-extrabold capitalize">
-            {data.name}
-          </h1>
+      <div className="bg-white/70 backdrop-blur-xl shadow-2xl rounded-3xl p-10 w-full max-w-2xl text-center space-y-8 animate-fadeIn">
 
-          <img
-            src={data.sprites.front_default}
-            alt={data.name}
-            className="mx-auto w-40 hover:scale-110 transition duration-300"
-          />
+        {/* Name */}
+        <h1 className="text-5xl font-extrabold capitalize">
+          {pokemon.name}
+        </h1>
 
-          <PokemonTypes types={data.types} />
+        {/* Image */}
+        <img
+          src={pokemon.sprites.front_default}
+          alt={pokemon.name}
+          className="mx-auto w-48 animate-float"
+        />
 
-          <p className="text-gray-500">Pokédex ID: #{data.id}</p>
-        </div>
+        {/* Types */}
+        <PokemonTypes types={pokemon.types} />
 
-        {/* Physical Info */}
-        <div className="grid grid-cols-3 text-center gap-4">
-          <div className="bg-gray-100 p-4 rounded-xl">
+        {/* Info Grid */}
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="bg-white p-4 rounded-xl shadow-md">
             <p className="text-sm text-gray-500">Height</p>
-            <p className="text-lg font-bold">{data.height}</p>
+            <p className="text-xl font-bold">{pokemon.height}</p>
           </div>
 
-          <div className="bg-gray-100 p-4 rounded-xl">
+          <div className="bg-white p-4 rounded-xl shadow-md">
             <p className="text-sm text-gray-500">Weight</p>
-            <p className="text-lg font-bold">{data.weight}</p>
+            <p className="text-xl font-bold">{pokemon.weight}</p>
           </div>
 
-          <div className="bg-gray-100 p-4 rounded-xl">
+          <div className="bg-white p-4 rounded-xl shadow-md">
             <p className="text-sm text-gray-500">Base XP</p>
-            <p className="text-lg font-bold">{data.base_experience}</p>
+            <p className="text-xl font-bold">
+              {pokemon.base_experience}
+            </p>
           </div>
         </div>
 
-        {/* Stats Section */}
+        {/* Stats */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Stats</h2>
+          <h2 className="text-2xl font-bold mt-6 mb-4">
+            Stats
+          </h2>
 
           <div className="space-y-3">
-            {data.stats.map((stat) => (
+            {pokemon.stats.map((stat) => (
               <div key={stat.stat.name}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="capitalize">
@@ -75,7 +64,7 @@ function PokemonDetail() {
 
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-                    className="bg-blue-500 h-3 rounded-full transition-all duration-700"
+                    className="bg-emerald-500 h-3 rounded-full transition-all duration-700"
                     style={{
                       width: `${Math.min(stat.base_stat, 100)}%`,
                     }}
@@ -86,20 +75,20 @@ function PokemonDetail() {
           </div>
         </div>
 
-        {/* Abilities Section */}
+        {/* Abilities */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Abilities</h2>
+          <h2 className="text-2xl font-bold mt-6 mb-4">
+            Abilities
+          </h2>
 
-          <div className="grid grid-cols-2 gap-4">
-            {data.abilities.map((a) => (
-              <div
+          <div className="flex flex-wrap justify-center gap-3">
+            {pokemon.abilities.map((a) => (
+              <span
                 key={a.ability.name}
-                className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-xl hover:scale-105 transition"
+                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:scale-110 transition"
               >
-                <p className="capitalize font-semibold text-center">
-                  {a.ability.name}
-                </p>
-              </div>
+                {a.ability.name}
+              </span>
             ))}
           </div>
         </div>
@@ -109,4 +98,4 @@ function PokemonDetail() {
   )
 }
 
-export default PokemonDetail
+export default PokemonDetailsCard

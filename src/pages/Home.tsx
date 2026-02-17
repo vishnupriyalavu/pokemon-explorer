@@ -1,10 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { fetchPokemonList } from "@/api/pokemonApi"
 import PokemonCard from "@/components/pokemon/PokemonCard"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 
 function Home() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const [search, setSearch] = useState("")
 
   const {
     data,
@@ -16,10 +17,12 @@ function Home() {
     queryFn: ({ pageParam = 0 }) =>
       fetchPokemonList(pageParam),
     initialPageParam: 0,
+    staleTime: 1000 * 60 * 10,
     getNextPageParam: (lastPage, pages) =>
       lastPage.next ? pages.length * 20 : undefined,
   })
 
+  // Infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -37,31 +40,60 @@ function Home() {
     return () => observer.disconnect()
   }, [fetchNextPage, hasNextPage])
 
+  // Flatten all pages
+  const allPokemon = useMemo(() => {
+    return data?.pages.flatMap((page) => page.results) ?? []
+  }, [data])
+
+  // Filtered list
+  const filteredPokemon = useMemo(() => {
+    return allPokemon.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [allPokemon, search])
+
   return (
-    <div>
-      <h1 className="text-4xl font-bold text-center mb-10">
+    <div className="p-8 space-y-8">
+
+      {/* Title */}
+      <h1 className="text-4xl font-bold text-center">
         Pokémon Explorer
       </h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-        {data?.pages.map((page) =>
-          page.results.map((pokemon) => (
-<PokemonCard
-  key={pokemon.name}
-  name={pokemon.name}
-  url={pokemon.url}
-/>
-          ))
-        )}
+      {/* Search Bar */}
+      <div className="flex justify-center">
+        <input
+          type="text"
+          placeholder="Search Pokémon..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full max-w-md px-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
       </div>
 
-      <div ref={loadMoreRef} className="h-20 flex justify-center items-center">
+      {/* Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {filteredPokemon.map((pokemon) => (
+          <PokemonCard
+            key={pokemon.name}
+            name={pokemon.name}
+            url={pokemon.url}
+          />
+        ))}
+      </div>
+
+      {/* Infinite Loader */}
+      <div
+        ref={loadMoreRef}
+        className="h-20 flex justify-center items-center"
+      >
         {isFetchingNextPage && (
           <p className="animate-pulse">
             Loading more Pokémon...
           </p>
         )}
       </div>
+
     </div>
   )
 }
