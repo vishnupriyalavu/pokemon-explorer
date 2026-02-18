@@ -76,8 +76,7 @@ function Home() {
         {filteredPokemon.map((pokemon) => (
           <PokemonCard
             key={pokemon.name}
-            name={pokemon.name}
-            url={pokemon.url}
+            name={pokemon.name} url={""}            // url={pokemon.url}
           />
         ))}
       </div>

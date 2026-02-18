@@ -9,7 +9,8 @@ interface Props {
   url: string
 }
 
-function PokemonCard({ name, url }: Props) {
+
+function PokemonCard({ name}: Props) {
   const navigate = useNavigate()
 
  // const id = url.split("/").filter(Boolean).pop()
